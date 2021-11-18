@@ -1,9 +1,5 @@
 <?php
 /**
- * @copyright Copyright (c) 2019 John Molakvoæ <skjnldsv@protonmail.com>
- *
- * @author John Molakvoæ <skjnldsv@protonmail.com>
- *
  * @license GNU AGPL version 3 or any later version
  *
  * This program is free software: you can redistribute it and/or modify
@@ -22,8 +18,11 @@
  */
 
 return [
+	'resources' => [
+		'facil' => ['url' => '/facility'],
+		'reserve' => ['url' => '/reserve'],
+	],
 	'routes' => [
 		['name' => 'page#index', 'url' => '/', 'verb' => 'GET'],
-		['name' => 'page#mail', 'url' => '/mail', 'verb' => 'GET'],
 	]
 ];

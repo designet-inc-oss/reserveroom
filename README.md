@@ -5,3 +5,4 @@
 3. 🏗 Then to build the Javascript whenever you make changes, run `make build-js`
 4. ✅ Enable the app through the app management of your Nextcloud
 5. 🎉 Partytime!
+# reserveroom
