@@ -139,7 +139,7 @@
 				</div>
 				<div>
 					<p>{{ t('reserveroom', 'Description') }}</p>
-					<textarea class="description" v-model="description" />
+					<textarea id="description" v-model="description" />
 				</div>
 				<div v-if="addButton">
 					<button @click="addReserve">
@@ -826,7 +826,7 @@ export default {
 	padding: 20px;
 }
 
-.description {
+#description {
 	width: 300px;
 	height: 150px;
 }

@@ -1,12 +1,12 @@
 {
-	"name": "skjnldsv/vueexample",
-	"description": "Lint config for skjnldsv/vueexample",
-	"license": "MIT",
+	"name": "Meeting Room",
+	"description": "Meeting Room Reservation",
+	"license": "AGPL",
 	"config": {
 		"optimize-autoloader": true,
 		"classmap-authoritative": true,
 		"platform": {
-			"php": "7.3"
+			"php": "7.4"
 		}
 	},
 	"scripts": {
