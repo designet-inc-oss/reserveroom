@@ -12,6 +12,9 @@ class ReserveController extends Controller {
 	/** @var ReserveService */
 	private $service;
 
+        /** @var IUserSession */
+        private $userSession;
+
 	//ユーザー情報
 	private $u_id;
 	use Errors;
@@ -19,7 +22,9 @@ class ReserveController extends Controller {
 	public function __construct(IRequest $request, ReserveService $service, IUserSession $userSession){
 		parent::__construct(Application::APP_ID, $request);
 		$this->service = $service;
+		$this->userSession = $userSession;
 		$this->u_id = $userSession->getUser()->getUID();
+                $this->dispname = $userSession->getUser()->getDisplayName();
 	}
 
 

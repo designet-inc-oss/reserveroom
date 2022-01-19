@@ -12,6 +12,7 @@ class Reserve extends Entity implements JsonSerializable {
 	protected $startDateTime;
 	protected $endDateTime;
 	protected $memo;
+	protected $data;
 	protected $displayname;
 	public $count;
 
@@ -23,6 +24,7 @@ class Reserve extends Entity implements JsonSerializable {
 			'start_date_time' => $this->startDateTime,
 			'end_date_time' => $this->endDateTime,
 			'memo' => $this->memo,
+			'data' => $this->data,
 			'displayname' => $this->displayname,
 			'count' => $this->count
 		];

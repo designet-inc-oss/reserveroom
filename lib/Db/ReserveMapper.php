@@ -41,12 +41,22 @@ class ReserveMapper extends QBMapper {
 		/* @var $qb IQueryBuilder */
 		$qb = $this->db->getQueryBuilder();
 		$qb->select('r.*')
-			->addSelect('u.displayname')
+			->addSelect('u.data')
      			->from('reservation', 'r')
-			->join('r', 'users', 'u', 'u.uid = r.uid')
+			->join('r', 'accounts', 'u', 'u.uid = r.uid')
 			->where('NOT ('.'start_date_time >='.'"'.$newDate.'"'.' OR '.'end_date_time <='.'"'.$date.'")');
 
-		return $this->findEntities($qb);
+                $cursor = $qb->execute();
+                $entities = [];
+                while ($row = $cursor->fetch()) {
+                        $json_data = json_decode($row["data"]);
+                        $row["displayname"] = $json_data->{"displayname"}->{"value"};
+                        unset($row["data"]);
+                        $entities[] = $this->mapRowToEntity($row);
+                }
+
+                $cursor->closeCursor();
+		return $entities;
 	}
 
 	public function deplicateReserve($start_date_time, $end_date_time, $facil_id){
