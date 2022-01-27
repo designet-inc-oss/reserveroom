@@ -1,7 +1,7 @@
 {
   "name": "reserveroom",
   "description": "A Nextcloud app for Meeting Room Reservation",
-  "version": "1.1.1",
+  "version": "1.1.2",
   "author": "Kimiyoshi Ohno <ohno@designet.co.jp>",
   "contributors": [
     "Kimiyoshi Ohno <ohno@designet.co.jp>"
