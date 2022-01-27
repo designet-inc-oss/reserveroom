@@ -71,42 +71,53 @@
 					{{ cur_year }}-{{ cur_mon }}-{{ cur_date }} ({{ week[cur_day] }})
 				</div>
 			</div>
-			<div class="daily-reserve" style="display: flex;">
-				<div class="time-list">
-					<div v-for="n in 25" :key="n" class="time-cell">
-						{{ (n - 1) + ":00" }}
-					</div>
-				</div>
-
-				<div v-for="room in sortedRooms" :key="room.id">
-					<div class="room-name">
-						{{ room.facil_name }}
-					</div>
-					<div class="room-column">
-						<div v-for="n in 24"
-							:key="n"
-							class="reserve-bg-cell"
-							@click="backgroundClick(room.id, n)" />
-					</div>
-
-					<div v-for="reserve in room.reserve"
-						:key="reserve.id"
-						:style="{
-							top: getTop(reserve.start) + 'px',
-							height: getHeight(reserve.start, reserve.end) + 'px'
-						}"
-						:class="reserve.class"
-						@click="reserveClick(room.id, reserve)">
-						<div class="reserve-content">
-							<div>
-								{{ reserve.displayname }}
-							</div>
-							<div :class="reserve.tooltips">
-								<div>{{ getDateTime(reserve.start) }} - {{ getDateTime(reserve.end) }}</div>
-								<div>{{ reserve.desc }}</div>
-							</div>
-						</div>
-					</div>
+			<div class="daily-reserve">
+				<div class="outer">
+					<table class="reserve-tbl">
+						<thead>
+							<tr>
+								<th class="column-time" />
+								<th v-for="room in sortedRooms" :key="room.id" class="column-reserve">
+									{{ room.facil_name }}
+								</th>
+							</tr>
+						</thead>
+						<tbody>
+							<tr>
+								<th class="column-time">
+									<div v-for="n in 24" :key="n" class="time-cell">
+										{{ (n - 1) + ":00" }}
+									</div>
+								</th>
+								<td v-for="room in sortedRooms"
+									:key="room.id"
+									class="column-reserve">
+									<template v-for="n in 48">
+										<template v-if="room.reserve[n]">
+											<div :key="n" class="reserve-bg-cell">
+												<div class="reserve-content">
+													<div :class="room.reserve[n].class"
+														:style="'height: ' + getHeight(room.reserve[n].start, room.reserve[n].end) + 'px'"
+														@click="reserveClick(room.id, room.reserve[n])">
+														{{ room.reserve[n].displayname }}
+													</div>
+													<div :class="room.reserve[n].tooltips">
+														<div>{{ getDateTime(room.reserve[n].start) }} - {{ getDateTime(room.reserve[n].end) }}</div>
+														<div class="tooltip-desc">
+															{{ room.reserve[n].desc }}
+														</div>
+													</div>
+												</div>
+											</div>
+										</template>
+										<template v-else>
+											<div :key="n" class="reserve-bg-cell" @click="backgroundClick(room.id, n)" />
+										</template>
+									</template>
+								</td>
+							</tr>
+						</tbody>
+					</table>
 				</div>
 			</div>
 		</AppContent>
@@ -139,7 +150,7 @@
 				</div>
 				<div>
 					<p>{{ t('reserveroom', 'Description') }}</p>
-					<textarea id="description" v-model="description" />
+					<textarea v-model="description" class="description" />
 				</div>
 				<div v-if="addButton">
 					<button @click="addReserve">
@@ -263,27 +274,6 @@ export default {
 			this.datetime_to = null
 			this.description = ''
 		},
-		getTop(rStart) {
-			// 00:00
-			const currentStart = new Date(this.cur_year, this.cur_mon - 1, this.cur_date, 0, 0, 0, 0)
-
-			// 24:00
-			const currentEnd = new Date(this.cur_year, this.cur_mon - 1, this.cur_date, 0, 0, 0, 0)
-			currentEnd.setDate(currentEnd.getDate() + 1)
-
-			// 00:00以前の場合、00:00の位置
-			if (rStart <= currentStart) {
-				return 80
-			}
-
-			// 25:00以降の場合、24:00の位置
-			if (rStart >= currentEnd) {
-				return 80 + 40 * 24
-			}
-
-			// 上記以外の場合
-			return 80 + 40 * (rStart.getHours() + (rStart.getMinutes() / 60))
-		},
 		getHeight(rStart, rEnd) {
 			// 00:00
 			const currentStart = new Date(this.cur_year, this.cur_mon - 1, this.cur_date, 0, 0, 0, 0)
@@ -297,23 +287,36 @@ export default {
 			// 開始が00:00以前の場合、00:00にセット
 			let calcStart
 			if (rStart <= currentStart) {
-				calcStart = 80
+				calcStart = 0
 			} else {
-				calcStart = 80 + 40 * (rStart.getHours() + (rStart.getMinutes() / 60))
+				let min = 0
+				if (rStart.getMinutes() >= 30) {
+					min = 30
+				}
+				calcStart = 40 * (rStart.getHours() + (min / 60))
 			}
 
 			// 終了が24:00以前の場合、24:00にセット
 			let calcEnd
 			if (rEnd >= currentEnd) {
-				calcEnd = 80 + 40 * 24
+				calcEnd = 40 * 24
 			} else {
-				calcEnd = 80 + 40 * (rEnd.getHours() + (rEnd.getMinutes() / 60))
+				let hour = rEnd.getHours()
+				let min = rEnd.getMinutes()
+				if (min > 30) {
+					hour += 1
+					min = 0
+				} else if (min > 0) {
+					min = 30
+				}
+				calcEnd = 40 * (hour + (min / 60))
 			}
+
 			const ret = calcEnd - calcStart
 			return ret
 		},
-		getTooltip(rStart) {
-			if (rStart.getHours() > 21) {
+		getTooltip(idx) {
+			if (idx > 42) {
 				return 'tooltips-up'
 			}
 			return 'tooltips'
@@ -340,10 +343,14 @@ export default {
 			// 選択した会議室をプルダウンメニューから選択
 			this.selected = this.search_selected(roomid)
 			this.roomid = roomid
-			n = n - 1
-			const ton = n + 1
-			this.datetime_from = new Date(this.cur_year, this.cur_mon - 1, this.cur_date, n, 0, 0, 0)
-			this.datetime_to = new Date(this.cur_year, this.cur_mon - 1, this.cur_date, ton, 0, 0, 0)
+			const fhour = (n - 1) / 2
+			const thour = fhour + 1
+			let min = 0
+			if ((n % 2) === 0) {
+			    min = 30
+			}
+			this.datetime_from = new Date(this.cur_year, this.cur_mon - 1, this.cur_date, fhour, min, 0, 0)
+			this.datetime_to = new Date(this.cur_year, this.cur_mon - 1, this.cur_date, thour, min, 0, 0)
 			this.description = ''
 		},
 		// 予約をクリックして編集
@@ -359,7 +366,6 @@ export default {
 			}
 			this.id = reserve.id
 			this.title = t('reserveroom', 'Modify Reserve')
-			this.show = true
 			this.addButton = false
 			this.editButton = true
 			this.deleteButton = true
@@ -368,6 +374,7 @@ export default {
 			this.datetime_from = reserve.start
 			this.datetime_to = reserve.end
 			this.description = reserve.desc
+			this.show = true
 		},
 		// 会議室の追加(管理者のみ)
 		async addRoom(value) {
@@ -401,7 +408,7 @@ export default {
 		},
 		// 会議室の削除(管理者のみ)
 		async deleteRoom(id) {
-			const ret = confirm(t('reserveroom', 'All reservations for this facility will be deleted.\nAre you OK?'))
+			const ret = confirm(t('reserveroom', 'Delete reservation in facility before delete facility.'))
 			// キャンセルが押された場合
 			if (ret === false) {
 				return true
@@ -674,18 +681,23 @@ export default {
 							if (d.displayname !== null) {
 								dispname = d.displayname
 							}
-							const reserve = {
+
+							const startDatetime = new Date(d.start_date_time)
+							const endDatetime = new Date(d.end_date_time)
+
+							const idx = this.get_idx(startDatetime)
+
+							room.reserve[idx] = {
 								id: d.id,
-								start: new Date(d.start_date_time),
-								end: new Date(d.end_date_time),
+								start: startDatetime,
+								end: endDatetime,
 								desc: d.memo,
 								owner: d.uid,
 								displayname: dispname,
 								class: myself,
-								tooltips: this.getTooltip(new Date(d.start_date_time)),
+								tooltips: this.getTooltip(idx),
 							}
 
-							room.reserve.push(reserve)
 							break
 						}
 					}
@@ -695,6 +707,10 @@ export default {
 				showError(t('reserveroom', 'Could not get list of reservation.'))
 				return false
 			}
+
+			// 再レンダリングするため
+			this.show = true
+			this.show = false
 
 			return true
 		},
@@ -736,6 +752,20 @@ export default {
 			}
 			return (null)
 		},
+		get_idx(start) {
+			const curTop = new Date(this.cur_year, this.cur_mon - 1, this.cur_date, 0, 0, 0, 0)
+
+			if (start < curTop) {
+				return (1)
+			}
+
+			let idx = (start.getHours() * 2) + 1
+			if (start.getMinutes() >= 30) {
+				idx = idx + 1
+			}
+
+			return (idx)
+		},
 	},
 }
 </script>
@@ -751,45 +781,46 @@ export default {
 }
 
 .time-cell {
-	width: 60px;
+	width: 48px;
 	height: 40px;
 	text-align: center;
 	vertical-align: top;
 	color: grey;
 	font-size: 90%;
-}
-
-.reserve-bg-cell {
-	width: 100px;
-	height: 40px;
-	border-top: solid lightgray 1px;
-	margin: 0 5px;
-}
-
-.reserve-bg-cell:last-child {
 	border-bottom: solid lightgray 1px;
 }
 
-.reserve_other {
-	position: absolute;
+.reserve-bg-cell {
+	position: relative;
 	width: 100px;
-	padding-left: 5px;
+	height: 20px;
+	border-bottom: solid lightgray 1px;
+	margin: 0 5px;
+}
+
+.reserve_other {
+	width: 100%;
+	text-align: center;
+	/*padding-left: 5px;*/
 	border: solid 1px white;
 	border-radius: 8px; top: 0px;
 	font-size: 90%;
 	color: white;
 	background-color:#f08080;
+	z-index: 100;
+	position: absolute;
 }
 
 .reserve_myself {
-	position: absolute;
-	width: 100px;
-	padding-left: 5px;
+	width: 100%;
+	/*padding-left: 5px;*/
 	border: solid 1px white;
 	border-radius: 8px; top: 0px;
 	font-size: 90%;
 	color: white;
 	background-color:#4169e1;
+	z-index: 100;
+	position: absolute;
 }
 
 .nav-button {
@@ -804,7 +835,7 @@ export default {
 	position: fixed;
 	background: #ffffff;
 	width: 100%;
-	z-index: 10;
+	z-index: 500;
 }
 
 .reserve-date {
@@ -826,44 +857,111 @@ export default {
 	padding: 20px;
 }
 
-#description {
+.description {
 	width: 300px;
 	height: 150px;
 }
 
 .tooltips {
 	display: none;
-	position: absolute;
-	width: 200%;
-	/*bottom: 20px;*/
-	top: 20px;
-	left: 0.3em;
-	z-index: 9999;
+	width: 180px;
+	height: 60px;
 	padding: 0.3em 0.5em;
 	color: #FFFFFF;
 	background: #000022;
 	border-radius: 0.5em;
+	text-align: left;
+	z-index: 400;
+	position: absolute;
+	top: 25px;
+	left: 8px;
+	font-size: 80%;
 }
 
 .tooltips-up {
 	display: none;
-	position: absolute;
-	width: 200%;
-	bottom: 40px;
-	/*top: 20px;*/
-	left: 0.3em;
-	z-index: 9999;
+	width: 180px;
+	height: 60px;
 	padding: 0.3em 0.5em;
 	color: #FFFFFF;
 	background: #000022;
 	border-radius: 0.5em;
+	text-align: left;
+	z-index: 400;
+	position: absolute;
+	top: -60px;
+	left: 8px;
+	font-size: 80%;
 }
 
-.reserve-content div:hover~.tooltips {
+.tooltip-desc {
+	width: 180px;
+	overflow-wrap: normal;
+}
+
+.reserve-content {
+	position: relative;
+}
+
+.reserve-content:hover .tooltips {
 	display: block;
 }
 
-.reserve-content div:hover~.tooltips-up {
+.reserve-content:hover .tooltips-up {
 	display: block;
+}
+
+.reserve-tbl {
+	/*width: 100%;*/
+	border-collapse: separate;
+	border-spacing: 0;
+	table-layout: fixed;
+}
+
+.reserve-tbl thead th {
+	background: white;
+	text-align: center;
+	height: 20px;
+	position: -webkit-sticky;
+	position: sticky;
+	top: 0;
+	z-index: 500;
+}
+
+.reserve-tbl th:first-child {
+	position: -webkit-sticky;
+	position: sticky;
+	left: 0;
+	z-index: 501;
+}
+
+.reserve-tbl thead th:first-child {
+	z-index: 501;
+}
+
+.reserve-tbl td {
+	text-align: center;
+	height: 40px;
+}
+
+.column-time {
+	width: 48px;
+	border: solid 1px lightgray;
+	background-color: white;
+	text-align: right;
+	padding-right: 2px;
+}
+
+.column-reserve {
+	width: 100px;
+	border: solid 1px lightgray;
+	background-color: white;
+}
+
+.outer {
+	width: 100%;
+	height: 500px;
+	overflow: scroll;
+	scrollbar-width: auto;
 }
 </style>

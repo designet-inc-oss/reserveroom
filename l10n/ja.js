@@ -39,6 +39,7 @@ OC.L10N.register(
     "Could not add facility." : "会議室を追加できませんでした。",
     "Added facility." : "会議室を追加しました。",
     "All reservations for this facility will be deleted.\nAre you OK?" : "この会議室の予約情報がすべて削除されます。\n本当に削除しますか？",
+    "Delete reservation in facility before delete facility." : "会議室を削除する前に、この会議室に登録されいてる予約をすべて削除してください。",
     "Could not delete facility." : "会議室を削除できませんでした。",
     "Deleted facility." : "会議室を削除しました。",
     "Modify facility name. \nAre you OK?" : "会議室名を変更します。\nよろしいですか？",
