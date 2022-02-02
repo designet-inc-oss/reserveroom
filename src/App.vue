@@ -76,7 +76,7 @@
 					<table class="reserve-tbl">
 						<thead>
 							<tr>
-								<th class="column-time" />
+								<td class="column-time" />
 								<th v-for="room in sortedRooms" :key="room.id" class="column-reserve">
 									{{ room.facil_name }}
 								</th>
@@ -84,11 +84,14 @@
 						</thead>
 						<tbody>
 							<tr>
-								<th class="column-time">
-									<div v-for="n in 24" :key="n" class="time-cell">
+								<td class="column-time">
+									<div v-for="n in 24"
+										:id="'time-' + (n - 1)"
+										:key="n"
+										class="time-cell">
 										{{ (n - 1) + ":00" }}
 									</div>
-								</th>
+								</td>
 								<td v-for="room in sortedRooms"
 									:key="room.id"
 									class="column-reserve">
@@ -245,6 +248,7 @@ export default {
 		},
 	},
 	mounted() {
+		this.myScrollTo()
 	},
 	created() {
 		this.printReserve(new Date())
@@ -255,6 +259,9 @@ export default {
 		}
 	},
 	methods: {
+		myScrollTo() {
+			document.getElementById('time-8').scrollIntoView({ behavior: 'smooth', block: 'start', inline: 'start' })
+		},
 		close() {
 			this.show = false
 		},
@@ -792,10 +799,26 @@ export default {
 
 .reserve-bg-cell {
 	position: relative;
-	width: 100px;
+	min-width: 100px;
 	height: 20px;
 	border-bottom: solid lightgray 1px;
-	margin: 0 5px;
+	margin: 0 0px;
+}
+
+.time-cell:nth-child(2n) {
+	background: rgba(221,221,221,0.3);
+}
+
+.reserve-bg-cell:nth-child(4n+3) {
+	background: rgba(221,221,221,0.3);
+}
+
+.reserve-bg-cell:nth-child(4n+4) {
+	background: rgba(221,221,221,0.3);
+}
+
+.reserve-bg-cell:hover {
+	background: rgba(250,165,165,0.3);
 }
 
 .reserve_other {
@@ -807,8 +830,8 @@ export default {
 	font-size: 90%;
 	color: white;
 	background-color:#f08080;
-	z-index: 100;
 	position: absolute;
+	z-index:1;
 }
 
 .reserve_myself {
@@ -819,8 +842,8 @@ export default {
 	font-size: 90%;
 	color: white;
 	background-color:#4169e1;
-	z-index: 100;
 	position: absolute;
+	z-index:1;
 }
 
 .nav-button {
@@ -835,7 +858,6 @@ export default {
 	position: fixed;
 	background: #ffffff;
 	width: 100%;
-	z-index: 500;
 }
 
 .reserve-date {
@@ -871,11 +893,11 @@ export default {
 	background: #000022;
 	border-radius: 0.5em;
 	text-align: left;
-	z-index: 400;
 	position: absolute;
 	top: 25px;
 	left: 8px;
 	font-size: 80%;
+	z-index: 2;
 }
 
 .tooltips-up {
@@ -887,11 +909,11 @@ export default {
 	background: #000022;
 	border-radius: 0.5em;
 	text-align: left;
-	z-index: 400;
 	position: absolute;
 	top: -60px;
 	left: 8px;
 	font-size: 80%;
+	z-index: 2;
 }
 
 .tooltip-desc {
@@ -918,30 +940,30 @@ export default {
 	table-layout: fixed;
 }
 
-.reserve-tbl thead th {
-	background: white;
+.reserve-tbl th {
 	text-align: center;
 	height: 20px;
 	position: -webkit-sticky;
 	position: sticky;
 	top: 0;
-	z-index: 500;
+	z-index: 3;
 }
 
 .reserve-tbl th:first-child {
 	position: -webkit-sticky;
 	position: sticky;
 	left: 0;
-	z-index: 501;
-}
-
-.reserve-tbl thead th:first-child {
-	z-index: 501;
+	z-index: 3;
 }
 
 .reserve-tbl td {
 	text-align: center;
 	height: 40px;
+}
+
+.column-time:first-child {
+	border-left: none;
+	border-top: none;
 }
 
 .column-time {
@@ -950,6 +972,14 @@ export default {
 	background-color: white;
 	text-align: right;
 	padding-right: 2px;
+	position: -webkit-sticky;
+	position: sticky;
+	left: 0;
+	z-index: 4;
+}
+
+th.column-reserve {
+	background: rgba(235,235,235,1);
 }
 
 .column-reserve {
@@ -960,7 +990,7 @@ export default {
 
 .outer {
 	width: 100%;
-	height: 500px;
+	height: 75vh;
 	overflow: scroll;
 	scrollbar-width: auto;
 }

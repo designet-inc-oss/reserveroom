@@ -56,7 +56,7 @@ class ReserveService{
 			
 		$ret = $this->mapper->deplicateReserve($start_date_time, $end_date_time, $facil_id);
 		$count = $ret->{'count'};
-		if ($count === '1') {
+		if ($count !== '0') {
 			$message = ['message' => 'Duplicate reserve.'];
 			return $message;
 		}
