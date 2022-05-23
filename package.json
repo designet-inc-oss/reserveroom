@@ -58,7 +58,7 @@
     "stylelint": "^13.13.1",
     "stylelint-config-recommended-scss": "^4.3.0",
     "stylelint-scss": "^3.21.0",
-    "stylelint-webpack-plugin": "^3.0.1",
+    "stylelint-webpack-plugin": "^3.3.0",
     "vue": "^2.6.12",
     "vue-loader": "^15.9.8",
     "vue-multiselect": "^2.1.6",
