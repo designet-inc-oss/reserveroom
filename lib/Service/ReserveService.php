@@ -10,6 +10,7 @@ use OCA\ReserveRoom\Db\Reserve;
 use OCA\ReserveRoom\Db\ReserveMapper;
 use OCA\ReserveRoom\Service\CheckService;
 use OCP\AppFramework\Http\DataResponse;
+
 class ReserveService{
 	
 	use CheckService;
@@ -17,10 +18,8 @@ class ReserveService{
 	/** @var ReserveMapper */
 	private $mapper;
 
-
 	public function __construct(ReserveMapper $mapper) {
 		$this->mapper = $mapper;
-
 
 	}
 
@@ -56,7 +55,7 @@ class ReserveService{
 			
 		$ret = $this->mapper->deplicateReserve($start_date_time, $end_date_time, $facil_id);
 		$count = $ret->{'count'};
-		if ($count !== '0') {
+		if ($count !== 0) {
 			$message = ['message' => 'Duplicate reserve.'];
 			return $message;
 		}
@@ -73,14 +72,14 @@ class ReserveService{
 	}
 
 	//予約の更新
-	public function update($id, $u_id, $facil_id, $start_date_time, $end_date_time, $memo) {
+	public function update($id, $u_id, $is_admin, $facil_id, $start_date_time, $end_date_time, $memo) {
 		try {
 			$reserve = $this->mapper->find($id);
 			//入力値の検証
 			$ret = $this->mapper->validUser($id, $u_id);
 			$count = $ret->{'count'};
 
-			if ($count === '0') {
+			if ($count === 0 && $is_admin === false) {
 				$message=["message" => "Cannot modify other's reserve."];
 				return $message;	
 			}
@@ -97,7 +96,7 @@ class ReserveService{
 			$count = $ret3->{'count'};
 
 
-                	if ($count !== '0') {
+                	if ($count !== 0) {
                                 $message=['message' => 'Duplicate reserve.'];
                                 return $message;
 			}
@@ -125,13 +124,13 @@ class ReserveService{
 	}
 
 	//予約の削除
-	public function delete($id, $u_id) {
+	public function delete($id, $u_id, $is_admin) {
 		try {
 			$reserve = $this->mapper->find($id);
 			$ret = $this->mapper->validUser($id, $u_id);
-                        $count = $ret->{'count'};
+			$count = $ret->{'count'};
 
-                        if ($count === '0') {
+                        if ($count === 0 && $is_admin === false) {
                                 $message=["message" => "Cannot delete other's reserve."];
                                 return $message;
 			}

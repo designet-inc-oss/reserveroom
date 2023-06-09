@@ -13,6 +13,7 @@
 				</button>
 				<DatetimePicker
 					v-model="datetime_current"
+					placeholder=" "
 					type="date"
 					@change="updateDate" />
 			</div>
@@ -22,46 +23,48 @@
 				</button>
 			</div>
 			<ul v-if="isAdmin" class="nav-config">
-				<AppNavigationItem :title="t('reserveroom', 'Setting Facility')"
-					icon="icon-edit"
-					:allow-collapse="true"
-					:open="false">
-					<AppNavigationItem
-						v-for="room in sortedRooms"
-						:key="room.id"
+				<div class="nav-outer">
+					<AppNavigationItem :title="t('reserveroom', 'Setting Facility')"
 						icon="icon-edit"
-						:title="room.facil_name">
-						<template #actions>
-							<ActionButton
-								v-if="showRoomNameLabel"
+						:allow-collapse="true"
+						:open="false">
+							<AppNavigationItem
+								v-for="room in sortedRooms"
+								:key="room.id"
 								icon="icon-edit"
-								@click.prevent.stop="openRoomNameInput">
-								{{ t('reserveroom', 'Modify Facility Name') }}
-							</ActionButton>
-							<ActionInput
-								v-if="showRoomNameInput"
-								:value="room.facil_name"
-								icon="icon-edit"
-								@submit.prevent.stop="saveRoomNameInput($event, room)" />
-							<ActionButton
-								v-if="showRoomOrderLabel"
-								icon="icon-edit"
-								@click.prevent.stop="openRoomOrderInput">
-								{{ t('reserveroom', 'Modify Order') }}
-							</ActionButton>
-							<ActionInput
-								v-if="showRoomOrderInput"
-								:value="room.sort_num"
-								icon="icon-edit"
-								@submit.prevent.stop="saveRoomOrderInput($event, room)" />
-							<ActionSeparator />
-							<ActionButton icon="icon-delete" @click="deleteRoom(room.id)">
-								{{ t('reserveroom', 'Delete') }}
-							</ActionButton>
-						</template>
+								:title="room.facil_name">
+								<template #actions>
+									<ActionButton
+										v-if="showRoomNameLabel"
+									icon="icon-edit"
+									@click.prevent.stop="openRoomNameInput">
+									{{ t('reserveroom', 'Modify Facility Name') }}
+								</ActionButton>
+								<ActionInput
+									v-if="showRoomNameInput"
+									:value="room.facil_name"
+									icon="icon-edit"
+									@submit.prevent.stop="saveRoomNameInput($event, room)" />
+								<ActionButton
+									v-if="showRoomOrderLabel"
+									icon="icon-edit"
+									@click.prevent.stop="openRoomOrderInput">
+									{{ t('reserveroom', 'Modify Order') }}
+								</ActionButton>
+								<ActionInput
+									v-if="showRoomOrderInput"
+									:value="room.sort_num"
+									icon="icon-edit"
+									@submit.prevent.stop="saveRoomOrderInput($event, room)" />
+								<ActionSeparator />
+								<ActionButton icon="icon-delete" @click="deleteRoom(room.id)">
+									{{ t('reserveroom', 'Delete') }}
+								</ActionButton>
+							</template>
+						</AppNavigationItem>
+						<AppNavigationNewItem :title="t('reserveroom', 'Add Facility')" icon="icon-add" @new-item="addRoom" />
 					</AppNavigationItem>
-					<AppNavigationNewItem :title="t('reserveroom', 'Add Facility')" icon="icon-add" @new-item="addRoom" />
-				</AppNavigationItem>
+				</div>
 			</ul>
 		</AppNavigation>
 
@@ -142,6 +145,7 @@
 					<DatetimePicker
 						v-model="datetime_from"
 						format="YYYY-MM-DD HH:mm"
+						placeholder=" "
 						:minute-step="Number(30)"
 						type="datetime" />
 					<p>{{ t('reserveroom', 'To') }}</p>
@@ -149,6 +153,7 @@
 						v-model="datetime_to"
 						format="YYYY-MM-DD HH:mm"
 						:minute-step="Number(30)"
+						placeholder=" "
 						type="datetime" />
 				</div>
 				<div>
@@ -182,17 +187,17 @@
 </template>
 
 <script>
-import Content from '@nextcloud/vue/dist/Components/Content'
-import AppContent from '@nextcloud/vue/dist/Components/AppContent'
-import AppNavigation from '@nextcloud/vue/dist/Components/AppNavigation'
-import AppNavigationItem from '@nextcloud/vue/dist/Components/AppNavigationItem'
-import AppNavigationNewItem from '@nextcloud/vue/dist/Components/AppNavigationNewItem'
-import AppSidebar from '@nextcloud/vue/dist/Components/AppSidebar'
-import Multiselect from '@nextcloud/vue/dist/Components/Multiselect'
-import DatetimePicker from '@nextcloud/vue/dist/Components/DatetimePicker'
-import ActionButton from '@nextcloud/vue/dist/Components/ActionButton'
-import ActionInput from '@nextcloud/vue/dist/Components/ActionInput'
-import ActionSeparator from '@nextcloud/vue/dist/Components/ActionSeparator'
+import Content from '@nextcloud/vue/dist/Components/NcContent'
+import AppContent from '@nextcloud/vue/dist/Components/NcAppContent'
+import AppNavigation from '@nextcloud/vue/dist/Components/NcAppNavigation'
+import AppNavigationItem from '@nextcloud/vue/dist/Components/NcAppNavigationItem'
+import AppNavigationNewItem from '@nextcloud/vue/dist/Components/NcAppNavigationNewItem'
+import AppSidebar from '@nextcloud/vue/dist/Components/NcAppSidebar'
+import Multiselect from '@nextcloud/vue/dist/Components/NcMultiselect'
+import DatetimePicker from '@nextcloud/vue/dist/Components/NcDatetimePicker'
+import ActionButton from '@nextcloud/vue/dist/Components/NcActionButton'
+import ActionInput from '@nextcloud/vue/dist/Components/NcActionInput'
+import ActionSeparator from '@nextcloud/vue/dist/Components/NcActionSeparator'
 import { showError, showSuccess } from '@nextcloud/dialogs'
 import axios from '@nextcloud/axios'
 import { generateUrl } from '@nextcloud/router'
@@ -362,7 +367,7 @@ export default {
 		},
 		// 予約をクリックして編集
 		reserveClick(roomid, reserve) {
-			if (reserve.owner !== getCurrentUser().uid) {
+			if (reserve.owner !== getCurrentUser().uid && getCurrentUser().isAdmin === false) {
 				if (this.show === true) {
 					this.show = false
 				}
@@ -847,11 +852,12 @@ export default {
 }
 
 .nav-button {
-	padding: 10px
+	padding: 10px;
 }
 
 .nav-config {
-	padding: 10px
+	padding: 10px;
+	height: 80%;
 }
 
 .reserve-header {
@@ -992,6 +998,13 @@ th.column-reserve {
 	width: 100%;
 	height: 75vh;
 	overflow: scroll;
+	scrollbar-width: auto;
+}
+
+.nav-outer {
+	width: 100%;
+	height: 50%;
+	overflow: auto;
 	scrollbar-width: auto;
 }
 </style>

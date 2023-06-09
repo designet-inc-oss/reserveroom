@@ -45,7 +45,7 @@ class FacilService {
 		
 		$count = $ret1->{'count'};
 
-		if ($count !== '0') {
+		if ($count !== 0) {
                         $message=['message' => 'Duplicate facility name.'];
       			return $message;
                 }
