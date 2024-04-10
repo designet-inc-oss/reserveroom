@@ -43,7 +43,7 @@ class FacilService {
 		//入力された値の検証	
 		$ret1 = $this->mapper->deplicateFacil($facil_name);
 		
-		$count = $ret1->{'count'};
+		$count = (int)$ret1->{'count'};
 
 		if ($count !== 0) {
                         $message=['message' => 'Duplicate facility name.'];

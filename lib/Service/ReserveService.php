@@ -54,7 +54,7 @@ class ReserveService{
 		}
 			
 		$ret = $this->mapper->deplicateReserve($start_date_time, $end_date_time, $facil_id);
-		$count = $ret->{'count'};
+		$count = (int)$ret->{'count'};
 		if ($count !== 0) {
 			$message = ['message' => 'Duplicate reserve.'];
 			return $message;
@@ -77,7 +77,7 @@ class ReserveService{
 			$reserve = $this->mapper->find($id);
 			//入力値の検証
 			$ret = $this->mapper->validUser($id, $u_id);
-			$count = $ret->{'count'};
+			$count = (int)$ret->{'count'};
 
 			if ($count === 0 && $is_admin === false) {
 				$message=["message" => "Cannot modify other's reserve."];
@@ -93,7 +93,7 @@ class ReserveService{
 			}
 
 			$ret3 = $this->mapper->deplicateReserveUpdate($id, $start_date_time, $end_date_time, $facil_id);
-			$count = $ret3->{'count'};
+			$count = (int)$ret3->{'count'};
 
 
                 	if ($count !== 0) {
@@ -128,7 +128,7 @@ class ReserveService{
 		try {
 			$reserve = $this->mapper->find($id);
 			$ret = $this->mapper->validUser($id, $u_id);
-			$count = $ret->{'count'};
+			$count = (int)$ret->{'count'};
 
                         if ($count === 0 && $is_admin === false) {
                                 $message=["message" => "Cannot delete other's reserve."];

@@ -1003,7 +1003,7 @@ th.column-reserve {
 
 .nav-outer {
 	width: 100%;
-	height: 50%;
+	height: 100%;
 	overflow: auto;
 	scrollbar-width: auto;
 }
